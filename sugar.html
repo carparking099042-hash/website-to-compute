@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <title>Sugargame</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    /* ---------- Cute Red Theme (compact) ---------- */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Noto Sans Thai", "Poppins", system-ui, sans-serif;
+      background: radial-gradient(circle at 10% 10%, #fff6f8 0%, #fff0f3 25%, #ffe6ec 60%);
+      color:#4b0a0a;padding:18px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#ff2d55,#ff6b6b);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;box-shadow:0 8px 20px rgba(255,45,85,0.14)}
+    h1{font-size:20px;color:#fff;text-shadow:0 6px 18px rgba(255,45,85,0.12)}
+    .subtitle{font-size:12px;color:rgba(255,255,255,0.9);background:rgba(0,0,0,0.06);display:inline-block;padding:4px 8px;border-radius:999px}
+    nav{display:flex;gap:12px;align-items:center}
+    .btn{background:linear-gradient(180deg,#fff 0%, #ffeef5 100%);border-radius:12px;padding:8px 12px;border:0;color:#ff2d55;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(255,45,85,0.08)}
+    .btn.ghost{background:transparent;border:2px solid rgba(255,255,255,0.12)}
+    .btn.danger{background:linear-gradient(90deg,#ff2d55,#ff6b6b);color:white}
+    .main{display:grid;grid-template-columns:1fr 340px;gap:18px}
+    .card{background:rgba(255,255,255,0.92);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(200,40,80,0.06);margin-bottom:12px}
+    .items{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .item{background:white;border-radius:12px;padding:10px;border:2px solid rgba(255,45,85,0.05);display:flex;flex-direction:column;gap:8px}
+    .item h4{color:#ff2d55}
+    .item p{font-size:13px;color:#6b2222}
+    .item-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .price{font-weight:900;color:#b00020}
+    .avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#fff 0%, #ffdfe3);display:flex;align-items:center;justify-content:center;color:#ff2d55;font-weight:900}
+    .muted{color:#7a2b2b;font-size:13px}
+    footer{text-align:center;margin-top:18px;color:#7a2b2b;font-size:13px}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,10,10,0.45);z-index:50;padding:18px}
+    .modal-box{width:100%;max-width:760px}
+    .modal-content{background:white;padding:14px;border-radius:12px;color:#4b0a0a}
+    .modal-content input,.modal-content textarea{width:100%;padding:8px;margin-top:8px;border-radius:8px;border:1px solid rgba(176,0,32,0.08)}
+    .items img{border-radius:8px; width:100%; height:120px; object-fit:cover; border:4px solid #fff}
+    @media(max-width:980px){ .main{grid-template-columns:1fr} .items{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:560px){ .items{grid-template-columns:1fr} header{flex-direction:column;align-items:flex-start;gap:8px} }
+    /* small helpers */
+    .row{display:flex;gap:8px;align-items:center}
+    .small{font-size:13px}
+    .danger-text{color:#b00020;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">🍬</div>
+        <div>
+          <h1>Sugargame</h1>
+          <div class="subtitle">ร้านไอเทมน่ารัก — ธีมแดง</div>
+        </div>
+      </div>
+      <nav>
+        <div id="greet" class="small">สวัสดี, Guest</div>
+        <div style="display:flex;gap:8px;margin-left:12px">
+          <button class="btn" id="btnLogin">ล็อกอิน/สมัคร</button>
+          <button class="btn" id="btnProfile">โปรไฟล์</button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section>
+        <div class="card">
+          <h2>ยินดีต้อนรับสู่ Sugargame 🎀</h2>
+          <p class="muted">ตัวอย่างแบบ Frontend-only เก็บข้อมูลในเครื่อง (localStorage). มีฟีเจอร์ AI-assist สำหรับช่วยเขียนคำอธิบายไอเทมแบบน่ารัก.</p>
+        </div>
+
+        <div class="card">
+          <h3>สินค้าขาย</h3>
+          <div id="itemsWrap" class="items" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="avatar" id="avatar">SG</div>
+            <div>
+              <div id="usernameDisplay">Guest</div>
+              <div class="muted" id="creditDisplay">เครดิต: -</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-direction:column">
+            <button class="btn" id="btnTopup">เติมเครดิต</button>
+            <button class="btn ghost" id="btnSeed">รีเซ็ตข้อมูล</button>
+            <div class="muted small">แอดมินตัวอย่าง: <strong>sugargame_admin</strong> / <strong>admin123</strong></div>
+          </div>
+        </div>
+
+        <div class="card" id="adminPanel" style="display:none">
+          <h4>แดชบอร์ดแอดมิน</h4>
+          <button class="btn danger" id="btnOpenAdmin">เปิดแดชบอร์ด</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer>© Sugargame — ตัวอย่างเก็บข้อมูลในเครื่องเท่านั้น</footer>
+  </div>
+
+  <!-- modal -->
+  <div id="modal" class="modal"><div class="modal-box"><div id="modalContent" class="modal-content"></div></div></div>
+
+<script>
+/*
+  Sugargame — Frontend-only with AI-assisted description generator (mock)
+  localStorage keys:
+    - sg_data : { users:[], items:[], orders:[], nextUserId, nextItemId, nextOrderId }
+    - sg_session : { userId, username, role }
+*/
+
+// helper funcs
+const $ = s=>document.querySelector(s);
+const lsGet = k => JSON.parse(localStorage.getItem(k) || 'null');
+const lsSet = (k,v)=>localStorage.setItem(k, JSON.stringify(v));
+const now = ()=>new Date().toISOString();
+
+// default seed
+function defaultSeed(){
+  const users = [
+    { id:1, username:'sugargame_admin', password:'admin123', credit:0, role:'admin' },
+    { id:2, username:'player001', password:'pass123', credit:200, role:'user' }
+  ];
+  const items = [
+    { id:1, title:'Starter Pack - 100 Gems', desc:'ID level 10 +100 gems. ข้อมูล: user_xxx / pass_yyy', price:100, image:null, owner:'sugargame_admin' },
+    { id:2, title:'Pro Sword', desc:'ดาบหายาก เพิ่มพลังโจมตี. ข้อมูล: sword_user / 1234', price:300, image:null, owner:'sugargame_admin' },
+    { id:3, title:'Skin Bundle', desc:'เซ็ตสกินพิเศษ. ข้อมูล: skin_acc / skinpass', price:200, image:null, owner:'sugargame_admin' },
+    { id:4, title:'VIP Account', desc:'บัญชีเลเวลสูง VIP. ข้อมูล: vip_user / vip123', price:1000, image:null, owner:'sugargame_admin' },
+    { id:5, title:'Lucky Chest', desc:'กล่องสุ่มของ (มีโอกาสได้ของหายาก). ข้อมูล: lucky / 555', price:50, image:null, owner:'sugargame_admin' }
+  ];
+  return { users, items, orders:[], nextUserId:3, nextItemId:6, nextOrderId:1 };
+}
+
+// ensure data exist
+function ensureData(){
+  let d = lsGet('sg_data');
+  if(!d){ d = defaultSeed(); lsSet('sg_data', d); }
+  return d;
+}
+
+// session
+function getSession(){ return lsGet('sg_session'); }
+function setSession(s){ lsSet('sg_session', s); render(); }
+function clearSession(){ localStorage.removeItem('sg_session'); render(); }
+
+// render UI
+function render(){
+  const s = getSession();
+  const d = ensureData();
+  $('#greet').textContent = s ? `สวัสดี, ${s.username}` : 'สวัสดี, Guest';
+  if(s){
+    $('#avatar').textContent = s.username.slice(0,2).toUpperCase();
+    $('#usernameDisplay').textContent = s.username + (s.role==='admin' ? ' (Admin)' : '');
+    const u = d.users.find(x=>x.id===s.userId);
+    $('#creditDisplay').textContent = 'เครดิต: ' + (u?u.credit:'-');
+  } else {
+    $('#avatar').textContent = 'SG';
+    $('#usernameDisplay').textContent = 'Guest';
+    $('#creditDisplay').textContent = 'เครดิต: -';
+  }
+  // admin panel
+  if(s && s.role==='admin') $('#adminPanel').style.display='block'; else $('#adminPanel').style.display='none';
+  // items
+  const wrap = document.getElementById('itemsWrap'); wrap.innerHTML='';
+  d.items.forEach(it=>{
+    const el = document.createElement('div'); el.className='item';
+    const img = document.createElement('img'); img.src = it.image || `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300"><rect width="100%" height="100%" fill="%23fff0f3"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="28" fill="%23ff2d55">'+escapeHtml(it.title)+'</text></svg>')}`;
+    el.appendChild(img);
+    const h = document.createElement('h4'); h.textContent = it.title; el.appendChild(h);
+    const p = document.createElement('p'); p.textContent = it.desc; el.appendChild(p);
+    const row = document.createElement('div'); row.className='item-row';
+    row.innerHTML = `<div class="price">${it.price} เครดิต</div><button class="btn buy">ซื้อ</button>`;
+    row.querySelector('.buy').onclick = ()=> buyItem(it.id);
+    el.appendChild(row);
+    wrap.appendChild(el);
+  });
+}
+
+// utilities
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+function openModal(html){ $('#modalContent').innerHTML = html; $('#modal').style.display='flex'; }
+function closeModal(){ $('#modal').style.display='none'; $('#modalContent').innerHTML=''; }
+
+// auth
+function openAuth(){
+  openModal(`
+    <div>
+      <h3>ล็อกอิน / สมัคร</h3>
+      <form id="authForm">
+        <input name="username" placeholder="ชื่อผู้ใช้" required />
+        <input name="password" placeholder="รหัสผ่าน" type="password" required />
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" type="submit">ล็อกอิน</button>
+          <button class="btn ghost" type="button" id="regBtn">สมัคร</button>
+          <button class="btn ghost" type="button" id="closeAuth">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  `);
+  $('#authForm').onsubmit = (e)=>{
+    e.preventDefault();
+    const u = e.target.username.value.trim(), p = e.target.password.value.trim();
+    const d = ensureData();
+    const user = d.users.find(x=>x.username===u && x.password===p);
+    if(!user){ alert('ไม่พบผู้ใช้หรือรหัสผ่านผิด'); return; }
+    setSession({ userId:user.id, username:user.username, role:user.role }); closeModal(); alert('ล็อกอินสำเร็จ');
+  };
+  $('#regBtn').onclick = ()=>{
+    const u = $('#authForm [name="username"]').value.trim(), p = $('#authForm [name="password"]').value.trim();
+    if(!u||!p){ alert('กรุณากรอกข้อมูล'); return; }
+    const d = ensureData();
+    if(d.users.find(x=>x.username.toLowerCase()===u.toLowerCase())){ alert('มีชื่อผู้ใช้นี้แล้ว'); return; }
+    const id = d.nextUserId++;
+    d.users.push({ id, username:u, password:p, credit:0, role:'user' });
+    lsSet('sg_data', d); alert('สมัครเรียบร้อย ล็อกอินได้เลย');
+  };
+  $('#closeAuth').onclick = closeModal;
+}
+
+// topup
+function openTopup(){
+  const s = getSession(); if(!s){ openAuth(); return; }
+  openModal(`<div><h3>เติมเครดิต (mock)</h3><form id="topupForm"><input name="amt" type="number" min="1" value="100"><div style="display:flex;gap:8px;margin-top:8px"><button class="btn" type="submit">เติม</button><button class="btn ghost" id="closeTop" type="button">ยกเลิก</button></div></form></div>`);
+  $('#topupForm').onsubmit = (e)=>{ e.preventDefault(); const v = Number(e.target.amt.value)||0; const s = getSession(); if(!s){ alert('กรุณาล็อกอิน'); closeModal(); return; } const d = ensureData(); const idx = d.users.findIndex(x=>x.id===s.userId); d.users[idx].credit += Math.max(1,v); lsSet('sg_data', d); closeModal(); render(); alert('เติมเครดิตเรียบร้อย'); };
+  $('#closeTop').onclick = closeModal;
+}
+
+// buy
+function buyItem(itemId){
+  const s = getSession(); if(!s){ openAuth(); return; }
+  const d = ensureData();
+  const userIdx = d.users.findIndex(x=>x.id===s.userId);
+  const it = d.items.find(x=>x.id===itemId);
+  if(!it){ alert('ไม่พบไอเทม'); return; }
+  if(d.users[userIdx].credit < it.price){ if(confirm('เครดิตไม่พอ เติมเครดิตไหม?')) openTopup(); return; }
+  d.users[userIdx].credit -= it.price;
+  const oid = d.nextOrderId++;
+  d.orders.unshift({ id:oid, userId:s.userId, itemId:it.id, status:'completed', delivered: it.desc, createdAt: now() });
+  lsSet('sg_data', d); render(); alert('ซื้อสำเร็จ! ข้อมูลการเข้าอยู่ในประวัติการสั่งซื้อ');
+}
+
+// admin dashboard
+function openAdmin(){
+  const s = getSession(); if(!s || s.role!=='admin'){ alert('ต้องเป็นแอดมิน'); return; }
+  const d = ensureData();
+  const usersRows = d.users.map(u=>`<tr><td>${escapeHtml(u.username)}</td><td>${u.credit}</td><td>${u.role}</td><td><form class="adj" data-uid="${u.id}"><input name="amt" value="100"/><button class="btn" type="submit">ปรับ</button></form></td></tr>`).join('');
+  const itemsRows = d.items.map(it=>`<tr><td>${escapeHtml(it.title)}</td><td>${it.price}</td><td>${escapeHtml(it.owner)}</td></tr>`).join('');
+  const ordersRows = d.orders.map(o=>`<li>#${o.id} • ${escapeHtml(d.users.find(x=>x.id===o.userId)?.username||'—')} • ${escapeHtml(d.items.find(x=>x.id===o.itemId)?.title||'—')} • ${o.status}</li>`).join('');
+  openModal(`<div><h3>แดชบอร์ดแอดมิน</h3>
+    <div style="display:flex;gap:12px">
+      <div style="flex:1">
+        <h4>เพิ่มไอเทม (มีปุ่ม AI ช่วยเติมคำอธิบาย)</h4>
+        <form id="addItemForm">
+          <input name="title" placeholder="ชื่อไอเทม (เช่น ดาบแสง)" required />
+          <input name="price" placeholder="ราคา (เครดิต)" type="number" required />
+          <textarea name="desc" placeholder="รายละเอียด (จะถูกส่งให้ผู้ซื้อ)" ></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" type="submit">เพิ่ม</button>
+            <button class="btn ghost" id="genAI" type="button">Generate with AI</button>
+            <button class="btn ghost" id="closeAdd" type="button">ยกเลิก</button>
+          </div>
+        </form>
+        <h4 style="margin-top:12px">ไอเทม</h4>
+        <table><thead><tr><th>ชื่อ</th><th>ราคา</th><th>เจ้าของ</th></tr></thead><tbody>${itemsRows}</tbody></table>
+      </div>
+      <div style="width:320px">
+        <h4>ผู้ใช้</h4><table><thead><tr><th>ชื่อ</th><th>เครดิต</th><th>บทบาท</th><th>ปรับ</th></tr></thead><tbody>${usersRows}</tbody></table>
+        <h4 style="margin-top:10px">คำสั่งซื้อ</h4><ul>${ordersRows}</ul>
+      </div>
+    </div>
+    <div style="margin-top:10px"><button class="btn ghost" id="closeAdmin">ปิด</button></div></div>`);
+  // handlers
+  $('#addItemForm').onsubmit = (e)=>{ e.preventDefault(); const t=e.target.title.value.trim(), p=Number(e.target.price.value)||0, desc=e.target.desc.value.trim(); if(!t||p<=0){ alert('กรอกชื่อและราคาถูกต้อง'); return; } const d=ensureData(); const id=d.nextItemId++; d.items.push({id,title:t,desc,price:p,image:null,owner:s.username}); lsSet('sg_data', d); render(); closeModal(); alert('เพิ่มไอเทมเรียบร้อย'); };
+  $('#genAI').onclick = ()=>{ // AI-assisted generator (mock) -> สร้างข้อความการ์ตูนน่ารักจากชื่อ+ราคา
+    const title = $('#addItemForm [name="title"]').value.trim(); const price = $('#addItemForm [name="price"]').value.trim();
+    const suggestion = aiGenerateDescription(title, price);
+    $('#addItemForm [name="desc"]').value = suggestion;
+  };
+  document.querySelectorAll('.adj').forEach(f=>{ f.onsubmit = (ev)=>{ ev.preventDefault(); const uid=Number(f.dataset.uid), amt=Number(f.amt.value)||0; const d=ensureData(); const i=d.users.findIndex(x=>x.id===uid); if(i>=0){ d.users[i].credit += amt; lsSet('sg_data', d); render(); alert('ปรับเครดิตเรียบร้อย'); closeModal(); } }; });
+  $('#closeAdd').onclick = closeModal; $('#closeAdmin').onclick = closeModal;
+}
+
+// mock AI generator function (รันในเครื่อง) — สามารถเปลี่ยนเป็นเรียก API จริงได้ในอนาคต
+function aiGenerateDescription(title, price){
+  // ถ้าไม่มี title -> คืน template ทั่วไป
+  if(!title) return "ไอเทมน่ารักพิเศษ! เหมาะสำหรับผู้เล่นที่อยากได้ความสนุกเพิ่มขึ้น";
+  // สร้างประโยคแบบการ์ตูน: เพิ่ม emoji, effect, ข้อความแนะนำการใช้งาน
+  const emojis = ['✨','💖','⚔️','🛡️','🌟','🎁','🔥'];
+  const e = emojis[Math.floor(Math.random()*emojis.length)];
+  const ppart = price ? `ราคา ${price} เครดิต` : 'ราคาน่ารัก';
+  // ประโยคหลายบรรทัด
+  const desc = `${e} ${title} — สินค้าพิเศษจาก Sugargame!\n${ppart} • เพิ่มความสนุกให้การเล่นของคุณ\nวิธีใช้งาน: นำไปใส่/ใช้ในเกมตามคำแนะนำของผู้พัฒนา\nความสามารถพิเศษ: เพิ่มความโชค/พลัง/สเตตัส (ขึ้นกับเกม)\nขอให้เล่นให้สนุกนะคะ! 💕`;
+  return desc;
+}
+
+// seed reset
+function seedReset(){
+  if(!confirm('รีเซ็ตข้อมูลเป็นค่าเริ่มต้น?')) return;
+  localStorage.removeItem('sg_data'); localStorage.removeItem('sg_session'); ensureData(); render(); alert('รีเซ็ตเรียบร้อย');
+}
+
+// event attach
+document.addEventListener('click', (e)=> {
+  if(e.target.matches('#btnLogin')) openAuth();
+  if(e.target.matches('#btnTopup')) openTopup();
+  if(e.target.matches('#btnSeed')) seedReset();
+  if(e.target.matches('#btnOpenAdmin')) openAdmin();
+  if(e.target.matches('#btnProfile')) openProfile();
+  if(e.target.matches('#modal')) { if(e.target===document.getElementById('modal')) closeModal(); }
+});
+
+// profile modal
+function openProfile(){
+  const s = getSession(); if(!s){ openAuth(); return; }
+  const d = ensureData(); const u = d.users.find(x=>x.id===s.userId);
+  const myOrders = d.orders.filter(o=>o.userId===s.userId);
+  const ordHtml = myOrders.map(o=>`<div style="padding:8px;border-radius:8px;background:#fff7f7;margin-bottom:8px"><b>${escapeHtml(d.items.find(i=>i.id===o.itemId)?.title||'—')}</b><div class="muted">${o.status} • ${o.createdAt.slice(0,19)}</div><details><summary>ดูข้อมูลการเข้า</summary><pre>${escapeHtml(o.delivered)}</pre></details></div>`).join('')||'<div class="muted">ยังไม่มีคำสั่งซื้อ</div>';
+  openModal(`<div><h3>โปรไฟล์ — ${escapeHtml(u.username)}</h3><div class="muted">เครดิต: ${u.credit}</div><hr>${ordHtml}<div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="logoutBtn">ออกจากระบบ</button><button class="btn ghost" id="closeProf">ปิด</button></div></div>`);
+  $('#logoutBtn').onclick = ()=>{ clearSession(); closeModal(); alert('ออกจากระบบแล้ว'); };
+  $('#closeProf').onclick = closeModal;
+}
+
+// initial
+ensureData(); render();
+
+// helpful: if admin account login, show admin open button in sidebar as well
+if(getSession() && getSession().role==='admin'){ $('#adminPanel').style.display='block'; }
+</script>
+</body>
+  </html>
